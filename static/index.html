@@ -1,0 +1,122 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Imagen 3 Image Generator</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Imagen 3 Image Generator</h1>
+        
+        <div class="form-container">
+            <h2>Generate an Image</h2>
+            <form action="/generate" method="post" class="image-form">
+                <div class="form-group">
+                    <label for="prompt">Image Prompt:</label>
+                    <input type="text" id="prompt" name="prompt" placeholder="Enter your image prompt" required>
+                    <div id="token_count">Tokens: 0</div>
+                </div>
+                <div class="form-group">
+                    <label for="aspect_ratio">Aspect Ratio:</label>
+                    <select id="aspect_ratio" name="aspect_ratio">
+                        <option value="1:1" selected>1:1</option>
+                        <option value="9:16">9:16</option>
+                        <option value="16:9">16:9</option>
+                        <option value="3:4">3:4</option>
+                        <option value="4:3">4:3</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="mime_type">Format:</label>
+                    <select id="mime_type" name="mime_type">
+                        <option value="image/png" selected>image/png</option>
+                        <option value="image/jpeg">image/jpeg</option>
+                    </select>
+                </div>
+                <button type="submit" class="submit-btn">Generate Image</button>
+            </form>
+        </div>
+        <div class="info-container">
+            <h2>How to Use</h2>
+            <p>You can generate images in two ways:</p>
+            <ol>
+                <li>Use the form above to input your prompt and customize image settings.</li>
+                <li>Use the following URL format:
+                    <code>http://localhost:5000/generate/your image prompt here?mime_type=image/jpeg&aspect_ration=1:1</code>
+                </li>
+            </ol>
+            <h3>Try an Example:</h3>
+            <div class="example-container">
+                <a id="exampleLink" href="/generate/a%20beautiful%20landscape%20with%20mountains%20and%20a%20lake?width=1024&height=1024&style=vivid" target="_blank" class="example-link">
+                    Generate: a beautiful landscape with mountains and a lake
+                </a>
+            </div>
+        </div>
+    </div>
+    <script>
+        function updateExampleLink() {
+            const prompt = document.getElementById('prompt').value;
+            const aspect_ratio = document.getElementById('aspect_ratio').value;
+            const mime_type = document.getElementById('mime_type').value;
+            const encodedPrompt = encodeURIComponent(prompt);
+            const link = document.getElementById('exampleLink');
+            link.href = `/generate/${encodedPrompt}?aspect_ratio=${aspect_ratio}&mime_type=${mime_type}`;
+            link.textContent = `Generate: ${prompt || 'a beautiful landscape with mountains and a lake'}`;
+        }
+
+        // Add event listeners to form inputs
+        document.getElementById('prompt').addEventListener('input', updateExampleLink);
+        document.getElementById('aspect_ratio').addEventListener('change', updateExampleLink);
+        document.getElementById('mime_type').addEventListener('change', updateExampleLink);
+
+        // Initialize the example link
+        updateExampleLink();
+    </script>
+    <script type="module">
+        import { AutoTokenizer  } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2';
+        const tokenizer = await AutoTokenizer.from_pretrained('Xenova/gemma-2-tokenizer');
+
+        const promptInput = document.getElementById('prompt');
+        const tokenCount = document.getElementById('token_count');
+        tokenCount.style.color = getColor(0);
+
+        promptInput.addEventListener('input', async () => {
+            const prompt = promptInput.value;
+            const result = await tokenizer.encode(prompt);
+            tokenCount.style.color = getColor(result.length);
+            tokenCount.textContent = `Tokens: ${result.length}`;
+        });
+
+        function getColor(numTokens) {
+            const MAX_TOKENS = 480;
+            const MIN_COLOUR_THRESHOLD = 480 * 0.9;
+
+            const START_COLOUR = [0, 127, 0];
+            const END_COLOUR = [200, 0, 0];
+    
+            if (numTokens > MIN_COLOUR_THRESHOLD && numTokens <= MAX_TOKENS) {
+                const t = (numTokens - MIN_COLOUR_THRESHOLD) / (MAX_TOKENS - MIN_COLOUR_THRESHOLD);                
+                const colour = lerpColour(START_COLOUR, END_COLOUR, t);
+                return `rgb(${colour[0]}, ${colour[1]}, ${colour[2]})`;
+            } else if (numTokens > MAX_TOKENS) {
+                return `rgb(${END_COLOUR[0]}, ${END_COLOUR[1]}, ${END_COLOUR[2]})`;
+            } else {
+                return `rgb(${START_COLOUR[0]}, ${START_COLOUR[1]}, ${START_COLOUR[2]})`;
+            }
+        }
+        function lerpColour(start, end, t) {
+            let r = lerp(start[0], end[0], t);
+            let g = lerp(start[1], end[1], t);
+            let b = lerp(start[2], end[2], t);
+            return [r, g, b];
+        }
+
+        function lerp(start, end, t) {
+            return start + t * (end - start);
+        }
+    </script>
+</body>
+</html>

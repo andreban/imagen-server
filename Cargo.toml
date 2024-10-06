@@ -1,0 +1,15 @@
+[package]
+name = "imagen-server"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+axum = "0.7.7"
+gcp_auth = "0.12.2"
+gemini-rs = { git = "https://github.com/andreban/gemini-rs/", rev = "e6de1d1" }
+serde = { version = "1.0.210", features = ["derive"] }
+tokio = { version = "1.40.0", features = ["full"] }
+tower-http = { version = "0.5.2", features = ["fs", "cors", "compression-br", "compression-deflate", "compression-gzip", "compression-zstd"] }
+tracing = "0.1.40"
+tracing-subscriber = "0.3.18"
+
