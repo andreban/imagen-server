@@ -17,7 +17,7 @@
                 <div class="form-group">
                     <label for="prompt">Image Prompt:</label>
                     <input type="text" id="prompt" name="prompt" placeholder="Enter your image prompt" required>
-                    <div id="token_count">Tokens: 0</div>
+                    <div id="token_count">0 of 480 tokens</div>
                 </div>
                 <div class="form-group">
                     <label for="aspect_ratio">Aspect Ratio:</label>
@@ -77,6 +77,12 @@
     </script>
     <script type="module">
         import { AutoTokenizer  } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2';
+        
+        const MAX_TOKENS = 480;
+        const MIN_COLOUR_THRESHOLD = 480 * 0.9;
+        const START_COLOUR = [0, 127, 0];
+        const END_COLOUR = [200, 0, 0];
+
         const tokenizer = await AutoTokenizer.from_pretrained('Xenova/gemma-2-tokenizer');
 
         const promptInput = document.getElementById('prompt');
@@ -87,16 +93,10 @@
             const prompt = promptInput.value;
             const result = await tokenizer.encode(prompt);
             tokenCount.style.color = getColor(result.length);
-            tokenCount.textContent = `Tokens: ${result.length}`;
+            tokenCount.textContent = `${result.length} of ${MAX_TOKENS} tokens`;
         });
 
         function getColor(numTokens) {
-            const MAX_TOKENS = 480;
-            const MIN_COLOUR_THRESHOLD = 480 * 0.9;
-
-            const START_COLOUR = [0, 127, 0];
-            const END_COLOUR = [200, 0, 0];
-    
             if (numTokens > MIN_COLOUR_THRESHOLD && numTokens <= MAX_TOKENS) {
                 const t = (numTokens - MIN_COLOUR_THRESHOLD) / (MAX_TOKENS - MIN_COLOUR_THRESHOLD);                
                 const colour = lerpColour(START_COLOUR, END_COLOUR, t);
