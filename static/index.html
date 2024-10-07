@@ -50,7 +50,7 @@
             </ol>
             <h3>Try an Example:</h3>
             <div class="example-container">
-                <a id="exampleLink" href="/generate/a%20beautiful%20landscape%20with%20mountains%20and%20a%20lake?width=1024&height=1024&style=vivid" target="_blank" class="example-link">
+                <a id="exampleLink" href="/generate/a%20beautiful%20landscape%20with%20mountains%20and%20a%20lake?aspect_ratio=1:1&mime_type=image/png" target="_blank" class="example-link">
                     Generate: a beautiful landscape with mountains and a lake
                 </a>
             </div>
@@ -58,13 +58,13 @@
     </div>
     <script>
         function updateExampleLink() {
-            const prompt = document.getElementById('prompt').value;
+            const prompt = document.getElementById('prompt').value || 'a beautiful landscape with mountains and a lake';
             const aspect_ratio = document.getElementById('aspect_ratio').value;
             const mime_type = document.getElementById('mime_type').value;
             const encodedPrompt = encodeURIComponent(prompt);
             const link = document.getElementById('exampleLink');
             link.href = `/generate/${encodedPrompt}?aspect_ratio=${aspect_ratio}&mime_type=${mime_type}`;
-            link.textContent = `Generate: ${prompt || 'a beautiful landscape with mountains and a lake'}`;
+            link.textContent = `Generate: ${prompt}`;
         }
 
         // Add event listeners to form inputs
